@@ -65,13 +65,15 @@ export default function App() {
   useEffect(() => {
     askPerm();
     tf.ready().then(() => setTFReady(true));
+    tf.setBackend("cpu");
+    console.log(tf.getBackend());
   }, []);
 
   const imageBrowserCallback = async (s) => {
     let files = await s;
     files = files.filter((f) => !f.uri.endsWith("PNG"));
     setNumber(number + files.length);
-    if (files.length < 4) {
+    if (files.length < 2) {
       alert("Not Enough Files");
     } else {
       setData([...data, { name: currentClass, files: files }]);
@@ -107,21 +109,23 @@ export default function App() {
     });
   };
 
-  const trainModel = async () => {
+  const stackImages = () => {
     imageTensorBatch.current = tf.stack(imageTensorBatch.current);
     labelTensorBatch.current = tf.stack(labelTensorBatch.current);
-    for (let i = 1; i < 5; ++i) {
-      const h = await model.fit(
-        imageTensorBatch.current,
-        labelTensorBatch.current,
-        {
-          batchSize: 1,
-          epochs: 3,
-        }
-      );
-      console.log("Loss after Epoch " + i + " : " + h.history.loss[0]);
-    }
-    setModel(m);
+    alert(";cool");
+  };
+
+  const trainModel = async () => {
+    const h = await model.fit(
+      imageTensorBatch.current,
+      labelTensorBatch.current,
+      {
+        batchSize: 1,
+        epochs: 3,
+      }
+    );
+    console.log("Loss after Epoch  : " + h.history.loss[0]);
+    setModel(model);
     alert("Sucess");
   };
 
@@ -251,6 +255,7 @@ export default function App() {
           <Text>TODO Train model</Text>
           <Text>Total Images {imageTensorBatch.current.length}</Text>
           <Button onPress={compileModel} title="Compile model"></Button>
+          <Button onPress={stackImages} title="stack"></Button>
           <Button onPress={trainModel} title="Train model"></Button>
           <Button
             onPress={() => {
